@@ -21,11 +21,11 @@ Navegador (HTML + JS sin frameworks, CSP estricta)
 Vercel ── función serverless Node.js 22 ── Express 5
               │  helmet · rate limit · zod · JWT/bcrypt · roles
               ▼
-        PostgreSQL (Neon) — o PostgreSQL en memoria (pg-mem) si no hay DATABASE_URL
+        PostgreSQL en memoria (pg-mem) con datos semilla — o PostgreSQL real si se define DATABASE_URL
 ```
 
 - `public/` frontend estático.
-- `src/app.js` app Express (seguridad transversal), `src/routes/api.js` endpoints, `src/db/` esquema y datos semilla.
+- `src/aplicacion.js` app Express (seguridad transversal), `src/routes/api.js` endpoints, `src/db/` esquema y datos semilla.
 - `api/index.js` punto de entrada serverless para Vercel.
 - `tests/` 31 pruebas de integración (node:test + supertest), una suite por épica.
 

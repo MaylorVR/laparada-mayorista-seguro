@@ -1,0 +1,147 @@
+name: CI/CD DevSecOps
+
+on:
+  push:
+    branches: [main, test]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: 1 · Build y lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Instalar dependencias (lockfile exacto)
+        run: npm ci
+      - name: Lint (ESLint, reglas no-eval / no-implied-eval)
+        run: npm run lint
+      - name: Build check (módulos y estáticos)
+        run: npm run build
+
+  test:
+    name: 2 · Pruebas automatizadas
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Pruebas unitarias e integración con cobertura
+        run: npm run test:coverage | tee test-output.txt
+      - name: Publicar resultados en el resumen del job
+        if: always()
+        run: |
+          {
+            echo "## Resultados de pruebas"
+            echo '```'
+            grep -E "^ℹ (tests|suites|pass|fail|duration_ms)" test-output.txt || true
+            echo '```'
+            echo "## Cobertura"
+            echo '```'
+            sed -n '/start of coverage report/,/end of coverage report/p' test-output.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Guardar reporte JUnit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultados-pruebas
+          path: |
+            test-results.xml
+            test-output.txt
+
+  security:
+    name: 3 · Análisis de seguridad
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: SCA · npm audit (falla con vulnerabilidades altas o críticas)
+        run: npm audit --omit=dev --audit-level=high
+      - name: Secretos · Gitleaks (historial completo)
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.28.0/gitleaks_8.28.0_linux_x64.tar.gz | tar -xz gitleaks
+          ./gitleaks git --redact --verbose --exit-code 1 .
+      - name: SAST · Semgrep (reglas JavaScript, Node.js, Express y secretos)
+        run: |
+          python3 -m pip install --quiet semgrep
+          semgrep scan --config p/javascript --config p/nodejsscan --config p/expressjs --config p/secrets \
+            --severity WARNING --severity ERROR --error --metrics=off --exclude node_modules
+      - name: Resumen
+        if: always()
+        run: |
+          echo "## Seguridad" >> "$GITHUB_STEP_SUMMARY"
+          echo "- npm audit (SCA), Gitleaks (secretos) y Semgrep (SAST) ejecutados. CodeQL corre en su propio workflow." >> "$GITHUB_STEP_SUMMARY"
+
+  dependency-review:
+    name: 3b · Revisión de dependencias del PR
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+
+  deploy:
+    name: 4 · Deploy en Vercel
+    needs: [test, security]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/test')
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'produccion' || 'pruebas' }}
+      url: ${{ steps.deploy.outputs.url }}
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --global vercel@latest
+      - name: Desplegar (main → producción, test → preview)
+        id: deploy
+        run: |
+          if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+            vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+            vercel build --prod --token="$VERCEL_TOKEN"
+            URL=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
+          else
+            vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
+            vercel build --token="$VERCEL_TOKEN"
+            URL=$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")
+          fi
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Desplegado en $URL" >> "$GITHUB_STEP_SUMMARY"
+      - name: Prueba de humo del despliegue
+        if: github.ref == 'refs/heads/main'
+        run: |
+          curl -fsS --retry 5 --retry-delay 5 https://mayorista-seguro.vercel.app/api/salud
+          curl -fsS https://mayorista-seguro.vercel.app/api/tarifas > /dev/null
+          curl -fsS -m 20 https://mayorista-seguro.vercel.app/ | grep -q "Mayorista Seguro"
+          echo "- Prueba de humo OK en https://mayorista-seguro.vercel.app" >> "$GITHUB_STEP_SUMMARY"

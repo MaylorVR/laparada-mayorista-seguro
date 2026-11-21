@@ -2,14 +2,14 @@
   "name": "mayorista-seguro",
   "version": "1.0.0",
   "description": "Sistema de gestión del traslado ordenado de La Parada al Mercado Mayorista de Santa Anita: padrón de comerciantes, estiba formal con tarifas transparentes, reservas de descarga, inspecciones sanitarias y denuncias anónimas.",
-  "main": "src/server.js",
+  "main": "src/servidor.js",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": "22.x"
   },
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "node --watch src/server.js",
+    "start": "node src/servidor.js",
+    "dev": "node --watch src/servidor.js",
     "lint": "eslint . --max-warnings=0",
     "test": "node --test --test-concurrency=1 \"tests/**/*.test.js\"",
     "test:coverage": "node --test --test-concurrency=1 --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=junit --test-reporter-destination=test-results.xml \"tests/**/*.test.js\"",

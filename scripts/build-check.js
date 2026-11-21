@@ -14,6 +14,6 @@ for (const f of requeridos) {
   }
 }
 process.env.NODE_ENV = process.env.NODE_ENV || 'test';
-require('../src/app');
+require('../src/aplicacion');
 require('../src/db');
 console.log('Build OK: módulos cargan y estáticos presentes (' + requeridos.length + ' archivos)');

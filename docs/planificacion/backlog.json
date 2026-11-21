@@ -1,0 +1,182 @@
+{
+  "proyecto": "Mayorista Seguro",
+  "clave_jira": "MS",
+  "tecnica_estimacion": "Planning poker con serie de Fibonacci (1, 2, 3, 5, 8). Referencia: HU13 (ver tarifas) = 2 puntos.",
+  "tecnica_priorizacion": "MoSCoW (Must, Should, Could, Won't) mapeado a la prioridad de Jira: Must=Highest, Should=High, Could=Medium, Won't=Low.",
+  "sprints": [
+    {"numero": 1, "nombre": "MS Sprint 1", "inicio": "2026-09-28", "fin": "2026-10-09",
+     "objetivo": "Base segura: pipeline CI, inicio de sesión con roles y padrón de comerciantes formalizados."},
+    {"numero": 2, "nombre": "MS Sprint 2", "inicio": "2026-10-12", "fin": "2026-10-23",
+     "objetivo": "Acabar con los cupos de estiba: puestos asignados, estibadores con carnet y tarifa oficial calculada por el sistema; seguridad automatizada en el pipeline."},
+    {"numero": 3, "nombre": "MS Sprint 3", "inicio": "2026-10-26", "fin": "2026-11-06",
+     "objetivo": "Orden vehicular y denuncia segura: reservas de descarga con capacidad por zona y denuncias anónimas con seguimiento."},
+    {"numero": 4, "nombre": "MS Sprint 4", "inicio": "2026-11-09", "fin": "2026-11-20",
+     "objetivo": "Salubridad, trazabilidad y salida a producción: inspecciones, auditoría, indicadores y despliegue continuo en la nube."}
+  ],
+  "epicas": [
+    {"id": "E1", "nombre": "Padrón y formalización de comerciantes",
+     "descripcion": "Registro de comerciantes mayoristas con RUC y rubro, creación de puestos por pabellón y asignación formal de puestos en Santa Anita.",
+     "objetivo": "Que el 100% de los comerciantes que operan en el nuevo mercado estén registrados y tengan un puesto asignado formalmente, eliminando el comercio sin registro de La Parada."},
+    {"id": "E2", "nombre": "Estiba formal y tarifas transparentes",
+     "descripcion": "Registro de estibadores con DNI y carnet, tarifas oficiales públicas por tipo de carga y registro de cada servicio con el monto calculado por el sistema.",
+     "objetivo": "Eliminar el cobro de cupos de los grupos que controlaban la estiba: todo servicio se paga solo con la tarifa oficial y lo presta un estibador identificado."},
+    {"id": "E3", "nombre": "Orden vehicular y reservas de descarga",
+     "descripcion": "Reserva de franjas horarias de descarga por zona, con capacidad máxima de camiones y registro del ingreso en la puerta.",
+     "objetivo": "Reducir el caos vehicular y las colas en los accesos distribuyendo la llegada de camiones en franjas con capacidad controlada."},
+    {"id": "E4", "nombre": "Salubridad e inspecciones",
+     "descripcion": "Inspecciones sanitarias por puesto con resultado (conforme, observado, clausurado), observaciones obligatorias e indicadores de gestión.",
+     "objetivo": "Garantizar condiciones sanitarias mínimas y medir el avance de la formalización con indicadores para la autoridad municipal."},
+    {"id": "E5", "nombre": "Seguridad, denuncias y auditoría",
+     "descripcion": "Inicio de sesión con roles, denuncias anónimas de cupos o extorsión con código de seguimiento, gestión de denuncias y registro de auditoría.",
+     "objetivo": "Proteger a comerciantes y estibadores frente a grupos organizados y dar trazabilidad a cada acción del sistema."},
+    {"id": "E6", "nombre": "Plataforma DevSecOps",
+     "descripcion": "Pipeline de integración y despliegue continuo con pruebas automatizadas, análisis de seguridad (SAST, dependencias, secretos) y despliegue en la nube.",
+     "objetivo": "Entregar versiones estables y seguras de forma frecuente, detectando errores y vulnerabilidades antes de producción (shift-left)."}
+  ],
+  "historias": [
+    {"id": "HU01", "epica": "E6", "sp": 5, "moscow": "Must", "sprint": 1,
+     "titulo": "Pipeline CI con build, lint y pruebas",
+     "como": "equipo de desarrollo", "quiero": "que cada push ejecute build, lint y pruebas automáticamente", "para": "detectar errores antes de integrar a main",
+     "criterios": [
+       "Dado un push a test o main, cuando se ejecuta el pipeline, entonces corren build, lint y pruebas en GitHub Actions.",
+       "Dado que una prueba falla, cuando termina el pipeline, entonces el estado es fallido y el PR no puede fusionarse."]},
+    {"id": "HU04", "epica": "E5", "sp": 5, "moscow": "Must", "sprint": 1,
+     "titulo": "Inicio de sesión con correo y contraseña",
+     "como": "usuario del sistema", "quiero": "iniciar sesión con mi correo y contraseña", "para": "acceder solo a las funciones de mi rol",
+     "criterios": [
+       "Dado un usuario registrado, cuando ingresa credenciales correctas, entonces recibe un token de sesión válido por 8 horas.",
+       "Dado un correo o contraseña incorrectos, cuando intenta ingresar, entonces ve 'Credenciales incorrectas' sin revelar cuál dato falló.",
+       "Dado más de 10 intentos en 15 minutos, cuando vuelve a intentar, entonces el sistema lo bloquea temporalmente."]},
+    {"id": "HU05", "epica": "E5", "sp": 3, "moscow": "Must", "sprint": 1,
+     "titulo": "Permisos por rol",
+     "como": "administrador del mercado", "quiero": "que cada rol (admin, inspector, comerciante) tenga permisos distintos", "para": "que nadie modifique datos que no le corresponden",
+     "criterios": [
+       "Dado un comerciante con sesión, cuando intenta registrar otro comerciante, entonces recibe 'No tiene permiso' (403).",
+       "Dado un token alterado, cuando se usa en cualquier ruta privada, entonces el sistema lo rechaza (401)."]},
+    {"id": "HU10", "epica": "E1", "sp": 5, "moscow": "Must", "sprint": 1,
+     "titulo": "Registrar comerciantes con RUC",
+     "como": "administrador del mercado", "quiero": "registrar comerciantes con RUC, razón social y rubro", "para": "contar con un padrón formal",
+     "criterios": [
+       "Dado un RUC válido de 11 dígitos que empieza en 10 o 20, cuando registro al comerciante, entonces queda con estado 'formalizado'.",
+       "Dado un RUC ya registrado, cuando intento registrarlo otra vez, entonces el sistema lo rechaza.",
+       "Dado un RUC con formato inválido, cuando lo envío, entonces veo el mensaje de validación."]},
+
+    {"id": "HU02", "epica": "E6", "sp": 5, "moscow": "Must", "sprint": 2,
+     "titulo": "Análisis de seguridad en el pipeline",
+     "como": "equipo de desarrollo", "quiero": "análisis SAST, de dependencias y de secretos en cada cambio", "para": "no llevar vulnerabilidades a producción",
+     "criterios": [
+       "Dado un cambio con una dependencia de severidad alta, cuando corre npm audit, entonces el pipeline falla.",
+       "Dado un secreto escrito en el código, cuando corre Gitleaks, entonces el pipeline falla.",
+       "Dado un patrón inseguro de código, cuando corren Semgrep y CodeQL, entonces el hallazgo aparece en el pipeline o en la pestaña Security."]},
+    {"id": "HU11", "epica": "E1", "sp": 3, "moscow": "Must", "sprint": 2,
+     "titulo": "Crear puestos por pabellón",
+     "como": "administrador del mercado", "quiero": "crear puestos con código y pabellón", "para": "organizar el espacio del mercado",
+     "criterios": [
+       "Dado el código A-103 y el pabellón A, cuando creo el puesto, entonces queda libre y listado.",
+       "Dado un código que no coincide con el pabellón, cuando lo envío, entonces el sistema lo rechaza."]},
+    {"id": "HU12", "epica": "E1", "sp": 3, "moscow": "Must", "sprint": 2,
+     "titulo": "Asignar puesto a comerciante formalizado",
+     "como": "administrador del mercado", "quiero": "asignar un puesto libre a un comerciante registrado", "para": "evitar ocupaciones informales",
+     "criterios": [
+       "Dado un puesto libre y un comerciante registrado, cuando lo asigno, entonces el puesto muestra la razón social.",
+       "Dado un puesto ya asignado, cuando intento asignarlo a otro, entonces el sistema lo impide."]},
+    {"id": "HU13", "epica": "E2", "sp": 2, "moscow": "Must", "sprint": 2,
+     "titulo": "Consultar tarifas oficiales de estiba",
+     "como": "comerciante", "quiero": "ver las tarifas oficiales de estiba sin iniciar sesión", "para": "saber cuánto pagar y no aceptar cobros abusivos",
+     "criterios": [
+       "Dado cualquier visitante, cuando abre la página principal, entonces ve la tabla de tarifas por tipo de carga en soles."]},
+    {"id": "HU14", "epica": "E2", "sp": 3, "moscow": "Must", "sprint": 2,
+     "titulo": "Registrar estibadores con DNI y carnet",
+     "como": "administrador del mercado", "quiero": "registrar estibadores con DNI y carnet activo", "para": "que solo trabajen estibadores identificados",
+     "criterios": [
+       "Dado un DNI de 8 dígitos nuevo, cuando registro al estibador, entonces queda con carnet activo.",
+       "Dado un DNI ya registrado, cuando intento registrarlo, entonces el sistema lo rechaza."]},
+    {"id": "HU15", "epica": "E2", "sp": 5, "moscow": "Must", "sprint": 2,
+     "titulo": "Registrar servicio de estiba con tarifa oficial",
+     "como": "comerciante", "quiero": "registrar cada servicio de estiba y que el sistema calcule el monto", "para": "pagar solo la tarifa oficial",
+     "criterios": [
+       "Dado 40 sacos y una tarifa de S/ 2.00, cuando registro el servicio, entonces el monto es S/ 80.00 aunque se envíe otro monto.",
+       "Dado un estibador con carnet suspendido, cuando intento registrar el servicio, entonces el sistema lo rechaza."]},
+
+    {"id": "HU06", "epica": "E5", "sp": 5, "moscow": "Must", "sprint": 3,
+     "titulo": "Denuncia anónima de cupos o extorsión",
+     "como": "comerciante o estibador", "quiero": "denunciar de forma anónima cobros de cupos, extorsión o insalubridad", "para": "reportar sin exponerme a represalias",
+     "criterios": [
+       "Dado un visitante sin sesión, cuando envía una denuncia válida, entonces recibe un código DEN-XXXXXXXX y no se guarda su identidad.",
+       "Dado más de 20 denuncias por hora desde la misma conexión, cuando envía otra, entonces el sistema la limita."]},
+    {"id": "HU07", "epica": "E5", "sp": 2, "moscow": "Should", "sprint": 3,
+     "titulo": "Seguimiento de denuncia por código",
+     "como": "denunciante", "quiero": "consultar el estado de mi denuncia con su código", "para": "saber si fue atendida",
+     "criterios": [
+       "Dado un código válido, cuando lo consulto, entonces veo tipo y estado, pero no la descripción.",
+       "Dado un código con formato inválido, cuando lo consulto, entonces el sistema lo rechaza sin consultar la base."]},
+    {"id": "HU16", "epica": "E2", "sp": 2, "moscow": "Should", "sprint": 3,
+     "titulo": "Suspender carnet de estibador",
+     "como": "administrador del mercado", "quiero": "suspender o reactivar el carnet de un estibador", "para": "retirar del servicio a quien cometa abusos",
+     "criterios": [
+       "Dado un estibador activo, cuando suspendo su carnet, entonces ya no aparece para registrar servicios.",
+       "Dado el cambio de carnet, cuando se guarda, entonces queda registrado en la auditoría."]},
+    {"id": "HU17", "epica": "E3", "sp": 8, "moscow": "Must", "sprint": 3,
+     "titulo": "Reservar franja de descarga",
+     "como": "comerciante", "quiero": "reservar una franja horaria y zona de descarga para mi camión", "para": "evitar colas y caos en los accesos",
+     "criterios": [
+       "Dado una placa con formato ABC-123, fecha, franja y zona, cuando reservo, entonces la reserva queda 'reservada'.",
+       "Dado que mi camión ya tiene reserva en esa franja, cuando intento otra, entonces el sistema lo impide."]},
+    {"id": "HU18", "epica": "E3", "sp": 3, "moscow": "Must", "sprint": 3,
+     "titulo": "Capacidad máxima por franja y zona",
+     "como": "administrador del mercado", "quiero": "que el sistema limite los camiones por franja y zona", "para": "mantener el orden vehicular",
+     "criterios": [
+       "Dado que una zona tiene 3 reservas en una franja, cuando llega una cuarta, entonces el sistema responde 'Franja llena'."]},
+    {"id": "HU19", "epica": "E3", "sp": 3, "moscow": "Should", "sprint": 3, "arrastre_a": 4,
+     "titulo": "Registrar ingreso del vehículo en puerta",
+     "como": "administrador en la puerta de ingreso", "quiero": "registrar el ingreso del camión con reserva", "para": "controlar quién entra al mercado",
+     "criterios": [
+       "Dado una reserva pendiente, cuando registro el ingreso, entonces cambia a 'ingresado' con la hora.",
+       "Dado una reserva ya ingresada, cuando intento registrar de nuevo, entonces el sistema lo impide."]},
+
+    {"id": "HU03", "epica": "E6", "sp": 3, "moscow": "Must", "sprint": 4,
+     "titulo": "Despliegue continuo en la nube",
+     "como": "municipalidad", "quiero": "que cada versión aprobada en main se despliegue sola en la nube", "para": "que los usuarios usen siempre la última versión estable",
+     "criterios": [
+       "Dado un PR fusionado en main con el pipeline en verde, cuando termina, entonces la app se publica en Vercel producción.",
+       "Dado el despliegue, cuando termina, entonces una prueba de humo verifica /api/salud."]},
+    {"id": "HU08", "epica": "E5", "sp": 3, "moscow": "Should", "sprint": 4,
+     "titulo": "Gestionar estado de denuncias",
+     "como": "administrador del mercado", "quiero": "cambiar el estado de las denuncias", "para": "derivarlas a la PNP o cerrarlas",
+     "criterios": [
+       "Dado una denuncia recibida, cuando la marco 'derivada_pnp', entonces el denunciante ve ese estado con su código.",
+       "Dado un usuario que no es admin, cuando intenta ver denuncias, entonces recibe 403."]},
+    {"id": "HU09", "epica": "E5", "sp": 3, "moscow": "Should", "sprint": 4,
+     "titulo": "Registro de auditoría",
+     "como": "administrador del mercado", "quiero": "un registro de todas las acciones de escritura", "para": "tener trazabilidad ante conflictos",
+     "criterios": [
+       "Dado que alguien crea o modifica un registro, cuando consulto la auditoría, entonces veo usuario, acción, entidad y fecha."]},
+    {"id": "HU20", "epica": "E4", "sp": 5, "moscow": "Must", "sprint": 4,
+     "titulo": "Registrar inspección sanitaria por puesto",
+     "como": "inspector sanitario", "quiero": "registrar inspecciones por puesto con su resultado", "para": "controlar la salubridad del mercado",
+     "criterios": [
+       "Dado un puesto, cuando registro 'conforme', entonces la inspección queda con mi nombre y fecha.",
+       "Dado un comerciante, cuando intenta registrar una inspección, entonces recibe 403."]},
+    {"id": "HU21", "epica": "E4", "sp": 1, "moscow": "Should", "sprint": 4,
+     "titulo": "Observaciones obligatorias si no es conforme",
+     "como": "inspector sanitario", "quiero": "que las observaciones sean obligatorias si el resultado es observado o clausurado", "para": "documentar las faltas",
+     "criterios": [
+       "Dado el resultado 'observado' sin observaciones, cuando guardo, entonces el sistema lo rechaza."]},
+    {"id": "HU22", "epica": "E4", "sp": 3, "moscow": "Could", "sprint": 4,
+     "titulo": "Panel de indicadores",
+     "como": "autoridad municipal", "quiero": "un panel con indicadores de formalización, estiba, reservas, inspecciones y denuncias", "para": "medir el avance del traslado",
+     "criterios": [
+       "Dado un usuario con sesión, cuando abre Indicadores, entonces ve los totales actualizados al momento."]},
+
+    {"id": "HU23", "epica": "E3", "sp": 5, "moscow": "Could", "sprint": null,
+     "titulo": "Aviso por SMS de la franja reservada",
+     "como": "comerciante", "quiero": "recibir un SMS con mi franja de descarga", "para": "no olvidar mi hora de llegada",
+     "criterios": [
+       "Dado una reserva confirmada, cuando se crea, entonces llega un SMS al celular del comerciante con fecha, franja y zona."]},
+    {"id": "HU24", "epica": "E2", "sp": 8, "moscow": "Won't", "sprint": null,
+     "titulo": "Pago de estiba con billetera digital",
+     "como": "comerciante", "quiero": "pagar la estiba con Yape o Plin", "para": "no manejar efectivo en el mercado",
+     "criterios": [
+       "Dado un servicio registrado, cuando elijo pagar con billetera digital, entonces el pago queda conciliado con el servicio."]}
+  ]
+}

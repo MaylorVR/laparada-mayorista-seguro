@@ -107,7 +107,7 @@ ARQ = """<!doctype html><html lang='es'><head><meta charset='utf-8'><style>""" +
 .lado .capa { margin-bottom:12px; }
 </style></head><body>
 <h1>Arquitectura lógica · Mayorista Seguro</h1>
-<p class='sub'>Aplicación web en capas desplegada como función serverless en Vercel, con PostgreSQL gestionado y seguridad transversal.</p>
+<p class='sub'>Aplicación web en capas desplegada como función serverless en Vercel, con base PostgreSQL y seguridad transversal.</p>
 <div class='wrap'><div>
  <div class='capa'><h3>Usuarios</h3><div class='fila'>
   <div class='box'><b>Administrador del mercado</b><small>Municipalidad: padrón, puestos, estiba, puertas, denuncias</small></div>
@@ -138,10 +138,10 @@ ARQ = """<!doctype html><html lang='es'><head><meta charset='utf-8'><style>""" +
    <div class='box'><b>Denuncias</b><small>/denuncias, /seguimiento/:codigo</small></div>
    <div class='box'><b>Indicadores y auditoría</b><small>/indicadores, /auditoria, /salud</small></div>
   </div></div>
- <div class='flecha'><b>↓</b> SQL parametrizado ($1, $2…) · driver <code>pg</code> · TLS</div>
+ <div class='flecha'><b>↓</b> SQL parametrizado ($1, $2…) · interfaz <code>pg</code></div>
  <div class='capa'><h3>Datos</h3><div class='fila'>
-  <div class='box db'><b>PostgreSQL (Neon, serverless)</b><small>usuarios, comerciantes, puestos, estibadores, tarifas_estiba, servicios_estiba, reservas_descarga, inspecciones, denuncias, auditoria</small></div>
-  <div class='box db'><b>pg-mem</b><small>PostgreSQL en memoria para pruebas y desarrollo (mismo SQL)</small></div>
+  <div class='box db'><b>PostgreSQL en memoria (pg-mem)</b><small>Base de la demo en la nube y de las pruebas. Tablas: usuarios, comerciantes, puestos, estibadores, tarifas_estiba, servicios_estiba, reservas_descarga, inspecciones, denuncias, auditoria. Se crea y se llena con datos semilla al iniciar.</small></div>
+  <div class='box db'><b>PostgreSQL gestionado (siguiente paso)</b><small>El mismo SQL corre en un PostgreSQL real con solo definir DATABASE_URL; no requiere cambios de código.</small></div>
  </div></div>
 </div>
 <div class='lado'>
@@ -149,7 +149,6 @@ ARQ = """<!doctype html><html lang='es'><head><meta charset='utf-8'><style>""" +
   <div class='box ext' style='margin-bottom:8px'><b>GitHub</b><small>Repositorio, Pull Requests, Security (CodeQL, Dependabot)</small></div>
   <div class='box ext' style='margin-bottom:8px'><b>GitHub Actions</b><small>CI/CD: build, test, seguridad, deploy</small></div>
   <div class='box ext' style='margin-bottom:8px'><b>Vercel</b><small>Hosting, CDN, funciones serverless, logs, variables de entorno cifradas</small></div>
-  <div class='box ext' style='margin-bottom:8px'><b>Neon</b><small>PostgreSQL gestionado con TLS</small></div>
   <div class='box ext'><b>Jira</b><small>Backlog, sprints y tablero</small></div>
  </div>
  <div class='capa'><h3>Leyenda</h3>
@@ -166,8 +165,8 @@ FASES = [
     ('Build', 'GitHub Actions + npm ci', 'Instalación reproducible con lockfile, lint y verificación de build', 'npm audit (SCA) y Dependabot sobre dependencias y actions'),
     ('Test', 'node:test + supertest', '31 pruebas de integración con cobertura y reporte JUnit', 'Pruebas de seguridad: token manipulado, 403 por rol, inyección SQL, enumeración de usuarios'),
     ('Release', 'Pull Request test → main', 'Solo se fusiona con el pipeline en verde', 'SAST con CodeQL y Semgrep, Gitleaks (secretos), dependency review'),
-    ('Deploy', 'Vercel CLI desde Actions', 'main → producción, test → preview, prueba de humo', 'Token en GitHub Secrets, JWT_SECRET y DATABASE_URL como variables cifradas, HTTPS + HSTS'),
-    ('Operate', 'Vercel Functions + Neon PostgreSQL', 'Serverless con escalado automático', 'helmet/CSP, rate limiting, roles de mínimo privilegio, TLS hacia la base'),
+    ('Deploy', 'Vercel CLI desde Actions', 'main → producción, test → preview, prueba de humo', 'Token en GitHub Secrets, JWT_SECRET como variable cifrada de Vercel, HTTPS + HSTS'),
+    ('Operate', 'Vercel Functions', 'Serverless con escalado automático y base PostgreSQL en memoria', 'helmet/CSP, rate limiting, roles de mínimo privilegio, JWT_SECRET cifrado'),
     ('Monitor', 'Vercel logs, /api/salud, auditoría', 'Indicadores de negocio y salud del servicio', 'Tabla de auditoría, CodeQL semanal programado, alertas de Dependabot'),
 ]
 

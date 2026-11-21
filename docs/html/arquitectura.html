@@ -19,7 +19,7 @@ h1 { font-size: 22px; margin: 0 0 4px; }
 .lado .capa { margin-bottom:12px; }
 </style></head><body>
 <h1>Arquitectura lógica · Mayorista Seguro</h1>
-<p class='sub'>Aplicación web en capas desplegada como función serverless en Vercel, con PostgreSQL gestionado y seguridad transversal.</p>
+<p class='sub'>Aplicación web en capas desplegada como función serverless en Vercel, con base PostgreSQL y seguridad transversal.</p>
 <div class='wrap'><div>
  <div class='capa'><h3>Usuarios</h3><div class='fila'>
   <div class='box'><b>Administrador del mercado</b><small>Municipalidad: padrón, puestos, estiba, puertas, denuncias</small></div>
@@ -50,10 +50,10 @@ h1 { font-size: 22px; margin: 0 0 4px; }
    <div class='box'><b>Denuncias</b><small>/denuncias, /seguimiento/:codigo</small></div>
    <div class='box'><b>Indicadores y auditoría</b><small>/indicadores, /auditoria, /salud</small></div>
   </div></div>
- <div class='flecha'><b>↓</b> SQL parametrizado ($1, $2…) · driver <code>pg</code> · TLS</div>
+ <div class='flecha'><b>↓</b> SQL parametrizado ($1, $2…) · interfaz <code>pg</code></div>
  <div class='capa'><h3>Datos</h3><div class='fila'>
-  <div class='box db'><b>PostgreSQL (Neon, serverless)</b><small>usuarios, comerciantes, puestos, estibadores, tarifas_estiba, servicios_estiba, reservas_descarga, inspecciones, denuncias, auditoria</small></div>
-  <div class='box db'><b>pg-mem</b><small>PostgreSQL en memoria para pruebas y desarrollo (mismo SQL)</small></div>
+  <div class='box db'><b>PostgreSQL en memoria (pg-mem)</b><small>Base de la demo en la nube y de las pruebas. Tablas: usuarios, comerciantes, puestos, estibadores, tarifas_estiba, servicios_estiba, reservas_descarga, inspecciones, denuncias, auditoria. Se crea y se llena con datos semilla al iniciar.</small></div>
+  <div class='box db'><b>PostgreSQL gestionado (siguiente paso)</b><small>El mismo SQL corre en un PostgreSQL real con solo definir DATABASE_URL; no requiere cambios de código.</small></div>
  </div></div>
 </div>
 <div class='lado'>
@@ -61,7 +61,6 @@ h1 { font-size: 22px; margin: 0 0 4px; }
   <div class='box ext' style='margin-bottom:8px'><b>GitHub</b><small>Repositorio, Pull Requests, Security (CodeQL, Dependabot)</small></div>
   <div class='box ext' style='margin-bottom:8px'><b>GitHub Actions</b><small>CI/CD: build, test, seguridad, deploy</small></div>
   <div class='box ext' style='margin-bottom:8px'><b>Vercel</b><small>Hosting, CDN, funciones serverless, logs, variables de entorno cifradas</small></div>
-  <div class='box ext' style='margin-bottom:8px'><b>Neon</b><small>PostgreSQL gestionado con TLS</small></div>
   <div class='box ext'><b>Jira</b><small>Backlog, sprints y tablero</small></div>
  </div>
  <div class='capa'><h3>Leyenda</h3>

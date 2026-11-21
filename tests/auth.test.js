@@ -77,3 +77,17 @@ describe('Cabeceras de seguridad y errores', () => {
     assert.equal(r.status, 404);
   });
 });
+
+describe('Límite general de peticiones', () => {
+  test('la API anuncia el límite en las cabeceras RateLimit', async () => {
+    const prev = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'development';
+    try {
+      const r = await request(app).get('/api/tarifas');
+      assert.equal(r.status, 200);
+      assert.ok(r.headers['ratelimit-policy'] || r.headers['ratelimit'], 'falta la cabecera RateLimit');
+    } finally {
+      process.env.NODE_ENV = prev;
+    }
+  });
+});

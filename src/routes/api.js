@@ -29,6 +29,17 @@ const limiteDenuncias = rateLimit({
   message: { error: 'Demasiadas denuncias desde esta conexión' },
 });
 
+// Límite general para toda la API (además de los límites específicos de login y denuncias).
+const limiteGeneral = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 300,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === 'test',
+  message: { error: 'Demasiadas solicitudes, intente en unos minutos' },
+});
+router.use(limiteGeneral);
+
 async function auditar(req, accion, entidad, entidadId) {
   await db.query(
     'INSERT INTO auditoria (usuario_id, accion, entidad, entidad_id) VALUES ($1, $2, $3, $4)',

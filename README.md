@@ -25,7 +25,7 @@ Vercel ── función serverless Node.js 22 ── Express 5
 ```
 
 - `public/` frontend estático.
-- `src/app.js` app Express (seguridad transversal), `src/routes/api.js` endpoints, `src/db/` esquema y datos semilla.
+- `src/aplicacion.js` app Express (seguridad transversal), `src/routes/api.js` endpoints, `src/db/` esquema y datos semilla.
 - `api/index.js` punto de entrada serverless para Vercel.
 - `tests/` 31 pruebas de integración (node:test + supertest), una suite por épica.
 

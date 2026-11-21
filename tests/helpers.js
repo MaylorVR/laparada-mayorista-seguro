@@ -5,7 +5,7 @@ delete process.env.DATABASE_URL;
 
 const request = require('supertest');
 const db = require('../src/db');
-const crearApp = require('../src/app');
+const crearApp = require('../src/aplicacion');
 
 const app = crearApp();
 const PASS = 'Demo2026!';

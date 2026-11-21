@@ -2,7 +2,7 @@
 
 const config = require('./config');
 const db = require('./db');
-const crearApp = require('./app');
+const crearApp = require('./aplicacion');
 
 const app = crearApp();
 

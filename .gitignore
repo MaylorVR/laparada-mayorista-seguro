@@ -6,3 +6,6 @@ coverage/
 test-results.xml
 *.log
 __pycache__/
+
+.vercel
+.env*

@@ -143,4 +143,5 @@ jobs:
         run: |
           curl -fsS --retry 5 --retry-delay 5 https://mayorista-seguro.vercel.app/api/salud
           curl -fsS https://mayorista-seguro.vercel.app/api/tarifas > /dev/null
+          curl -fsS -m 20 https://mayorista-seguro.vercel.app/ | grep -q "Mayorista Seguro"
           echo "- Prueba de humo OK en https://mayorista-seguro.vercel.app" >> "$GITHUB_STEP_SUMMARY"

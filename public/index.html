@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mayorista Seguro</title>
+  <meta name="description" content="Gestión ordenada del Mercado Mayorista de Santa Anita: comerciantes formales, estiba con tarifa oficial, reservas de descarga, inspecciones y denuncias anónimas.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <div class="marca">
+      <span class="logo" aria-hidden="true">MS</span>
+      <div>
+        <strong>Mayorista Seguro</strong>
+        <small>Mercado Mayorista de Santa Anita · traslado desde La Parada</small>
+      </div>
+    </div>
+    <div id="sesion" class="sesion"></div>
+  </header>
+
+  <main>
+    <!-- Vista pública -->
+    <section id="vista-publica">
+      <div class="grid2">
+        <article class="card">
+          <h2>Tarifas oficiales de estiba</h2>
+          <p class="nota">Se paga solo esto, por unidad. Nadie puede cobrar cupos adicionales.</p>
+          <table><thead><tr><th>Carga</th><th>Descripción</th><th>S/ por unidad</th></tr></thead>
+            <tbody id="tabla-tarifas"></tbody></table>
+        </article>
+
+        <article class="card">
+          <h2>Ingresar</h2>
+          <form id="form-login" autocomplete="on">
+            <label>Correo <input name="email" type="email" required autocomplete="username"></label>
+            <label>Contraseña <input name="password" type="password" required autocomplete="current-password"></label>
+            <button type="submit">Ingresar</button>
+            <p class="nota">Cuentas de demostración: admin@, inspector@ y comerciante@mayorista.pe</p>
+          </form>
+        </article>
+
+        <article class="card">
+          <h2>Denuncia anónima</h2>
+          <p class="nota">Cobro de cupos, extorsión, insalubridad o caos vehicular. No pedimos tu nombre.</p>
+          <form id="form-denuncia">
+            <label>Tipo
+              <select name="tipo">
+                <option value="cobro_cupos">Cobro de cupos</option>
+                <option value="extorsion">Extorsión</option>
+                <option value="insalubridad">Insalubridad</option>
+                <option value="caos_vehicular">Caos vehicular</option>
+                <option value="otro">Otro</option>
+              </select>
+            </label>
+            <label>¿Qué pasó? <textarea name="descripcion" minlength="10" maxlength="1000" required></textarea></label>
+            <label>Lugar (opcional) <input name="ubicacion" maxlength="150"></label>
+            <button type="submit">Enviar denuncia</button>
+          </form>
+        </article>
+
+        <article class="card">
+          <h2>Seguimiento de denuncia</h2>
+          <form id="form-seguimiento">
+            <label>Código <input name="codigo" placeholder="DEN-1A2B3C4D" required></label>
+            <button type="submit">Consultar</button>
+          </form>
+          <div id="res-seguimiento"></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Vista privada -->
+    <section id="vista-privada" hidden>
+      <nav class="tabs" id="tabs" aria-label="Módulos"></nav>
+      <div id="contenido"></div>
+    </section>
+  </main>
+
+  <div id="aviso" class="aviso" role="status" aria-live="polite"></div>
+  <footer>Proyecto académico DevSecOps · Caso La Parada</footer>
+  <script src="app.js"></script>
+</body>
+</html>
